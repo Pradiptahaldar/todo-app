@@ -68,7 +68,7 @@ Open MySQL and run:
 
 ```sql
 CREATE DATABASE pradipta;
-USE pradipta;
+USE {db name};
 
 CREATE TABLE tasks (
     id INT AUTO_INCREMENT PRIMARY KEY,
