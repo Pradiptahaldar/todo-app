@@ -10,11 +10,11 @@ app.secret_key = "your_secret_key"
 
 # connect to mysql
 conn = mysql.connector.connect(
-    host=os.getenv("MYSQL_HOST"),
-    user=os.getenv("MYSQL_USER"),
-    password=os.getenv("MYSQL_PASSWORD"),
-    database=os.getenv("MYSQL_DATABASE"),
-    port=int(os.getenv("MYSQL_PORT"))
+    host=os.getenv("MYSQLHOST"),
+    user=os.getenv("MYSQLUSER"),
+    password=os.getenv("MYSQLPASSWORD"),
+    database=os.getenv("MYSQLDATABASE"),
+    port=int(os.getenv("MYSQLPORT"))
 )
 cursor = conn.cursor(dictionary=True)
 
