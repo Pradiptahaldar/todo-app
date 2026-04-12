@@ -12,7 +12,7 @@ app.secret_key = "your_secret_key"
 conn = mysql.connector.connect(
     host=os.getenv("MYSQLHOST",
                    'mysql.railway.internal'),
-    user=os.getenv("MYSQLUSER",root),
+    user=os.getenv("MYSQLUSER",'root'),
     password=os.getenv("MYSQLPASSWORD",'iLtdnSHBlXUbUkYKbovwCFffTaEaIlDP'),
     database=os.getenv("MYSQLDATABASE", 'railway'),
     port=int(os.getenv("MYSQLPORT",3306))
