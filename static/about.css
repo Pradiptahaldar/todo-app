@@ -1,0 +1,30 @@
+/* FULL PAGE BACKGROUND */
+.landing-body {
+    min-height: 100vh;
+    background: 
+        radial-gradient(circle at 20% 20%, rgba(255,255,255,0.05), transparent 40%),
+        radial-gradient(circle at 80% 80%, rgba(255,255,255,0.04), transparent 40%),
+        linear-gradient(135deg, #0f172a, #020617);
+
+    color: white;
+}
+
+/* OPTIONAL: subtle glass effect for sections */
+section {
+    backdrop-filter: blur(6px);
+}
+
+/* Keep text readable */
+.text-secondary {
+    color: rgba(255, 255, 255, 0.65) !important;
+}
+
+/* Navbar stays clean */
+.navbar {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Footer slight separation */
+footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
