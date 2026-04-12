@@ -1,25 +1,17 @@
-import os
-
 from flask import Flask, render_template, request, redirect, url_for, session
 import mysql.connector
 from datetime import datetime
 
-
 app = Flask(__name__)
 app.secret_key = "your_secret_key"
-
 # connect to mysql
-def get_db():
-return mysql.connector.connect(
-    host=os.getenv("MYSQLHOST",
-                   'mysql.railway.internal'),
-    user=os.getenv("MYSQLUSER",'root'),
-    password=os.getenv("MYSQLPASSWORD",'iLtdnSHBlXUbUkYKbovwCFffTaEaIlDP'),
-    database=os.getenv("MYSQLDATABASE", 'railway'),
-    port=int(os.getenv("MYSQLPORT",3306))
+conn = mysql.connector.connect(
+    host="localhost",
+    user="root",
+    password="",
+    database="pradipta"
 )
 cursor = conn.cursor(dictionary=True)
-
 
 @app.route("/")
 def landing():
@@ -63,7 +55,6 @@ def login():
         user = cursor.fetchone()
 
         if user:
-            session["user_id"]= user[0]
             return redirect(url_for("index"))
         else:
             error="Invalid email or password"
@@ -73,26 +64,16 @@ def login():
 
 @app.route("/home")
 def index():
-    if "user_id" not in session:
-        return redirect(url_for("login"))
-    
-    user_id = session.get("user_id")
-    cursor.execute("SELECT * FROM tasks WHERE user_id = %s", (user_id,))
-    
+    cursor.execute("SELECT * FROM tasks")
+
     tasks = cursor.fetchall()
-    cursor.execute("SELECT COUNT(*) as total FROM tasks WHERE user_id = %s", (user_id,))
-    total_tasks = cursor.fetchone()["total"]
-    cursor.execute("SELECT COUNT(*) as completed FROM tasks WHERE user_id = %s AND completed = 1", (user_id,))
-    completed_tasks = cursor.fetchone()["completed"]
+    total_tasks = len(tasks)
+    completed_tasks = sum(1 for task in tasks if task["completed"])
     pending_tasks = total_tasks - completed_tasks
     return render_template("index.html", tasks=tasks, total_tasks=total_tasks, completed_tasks=completed_tasks, pending_tasks=pending_tasks)
 
 @app.route("/add", methods=["POST"])
 def add():
-    if "user_id" not in session:
-        return redirect(url_for("login"))
-    
-    user_id = session.get("user_id")
     title = request.form.get("title")
     description = request.form.get("description")
 
@@ -102,8 +83,8 @@ def add():
     created_at = datetime.now()
 
     cursor.execute(
-        "INSERT INTO tasks (user_id, title, description, created_at) VALUES (%s, %s, %s, %s)",
-        (user_id, title, description, created_at)
+        "INSERT INTO tasks (title, description, created_at) VALUES (%s, %s, %s)",
+        (title, description, created_at)
     )
     conn.commit()
 
@@ -156,7 +137,7 @@ def update(id):
 
 @app.route("/toggle/<int:id>")
 def toggle(id):
-    print("TOGGLE HIT:", id)   #debugging statement
+    print("TOGGLE HIT:", id)   # 👈 DEBUG
 
     cursor.execute(
         "UPDATE tasks SET completed = NOT completed WHERE id=%s",
@@ -176,4 +157,4 @@ def search():
     )
     return render_template("index.html", tasks=cursor.fetchall())
 if __name__ == "__main__":
-    app.run (host="0.0.0.0", port=5000)
+    app.run (debug=True, port=9000)
