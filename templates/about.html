@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>About - PH Tasks</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='about.css') }}">
+</head>
+
+<body class="landing-body">
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-dark bg-black">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/">PH Tasks</a>
+    </div>
+</nav>
+
+<!-- HERO -->
+<section class="container text-center py-5">
+    <h1 class="display-5 fw-bold">About PH Tasks</h1>
+    <p class="text-secondary mt-3">
+        A minimal and powerful task manager designed to help you stay focused and productive.
+    </p>
+</section>
+
+<!-- WHAT IT DOES -->
+<section class="container py-4">
+    <div class="row text-center">
+
+        <div class="col-md-4 mb-4">
+            <h5>Simple Task Management</h5>
+            <p class="text-secondary">Create, update, and organize tasks with ease.</p>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <h5>Stay Consistent</h5>
+            <p class="text-secondary">Track your daily tasks and build productivity habits.</p>
+        </div>
+
+        <div class="col-md-4 mb-4">
+            <h5>Fast & Clean</h5>
+            <p class="text-secondary">No clutter. Just focus on what matters.</p>
+        </div>
+
+    </div>
+</section>
+
+<!-- WHY BUILT -->
+<section class="container py-5">
+    <div class="text-center">
+        <h3 class="fw-semibold">Why I Built This</h3>
+        <p class="text-secondary mt-3">
+            I wanted a simple, distraction-free task manager that focuses only on productivity.
+            PH Tasks is built to be fast, minimal, and easy to use — without unnecessary complexity.
+        </p>
+    </div>
+</section>
+
+<!-- TECH STACK -->
+<section class="container py-4">
+    <div class="text-center">
+        <h3 class="fw-semibold">Tech Stack</h3>
+    </div>
+
+    <div class="row text-center mt-4">
+        <div class="col-md-3">Flask</div>
+        <div class="col-md-3">MySQL</div>
+        <div class="col-md-3">Bootstrap</div>
+        <div class="col-md-3">HTML & CSS</div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="container text-center py-5">
+    <h4>Start managing your tasks today</h4>
+    <a href="/signup" class="btn btn-light mt-3">Get Started</a>
+</section>
+<button onclick="history.back()" 
+        class="btn btn-outline-light mt-3 d-block mx-auto">
+    ← Go Back
+</button>
+
+<!-- FOOTER -->
+<footer class="text-center py-3 text-secondary">
+    © 2026 Pradipta Haldar
+</footer>
+
+</body>
+</html>
