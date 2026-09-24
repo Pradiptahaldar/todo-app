@@ -37,10 +37,15 @@ def signup():
                 "INSERT INTO users (name, age, phone, email, password) VALUES (%s, %s, %s, %s, %s)",
                 (name, age, phone, email, password)
             )
+
             conn.commit()
+
+            user_id = cursor.lastrowid
+            session["user_id"] = user_id
+
             print("Inserted successfully")
 
-            return redirect(url_for("index"))   # ✅ FIX
+            return redirect(url_for("index"))
 
         except Exception as e:
             print("Error:", e)
@@ -61,6 +66,7 @@ def login():
         user = cursor.fetchone()
 
         if user:
+            session["user_id"]= user["id"]
             return redirect(url_for("index"))
         else:
             error="Invalid email or password"
@@ -70,7 +76,16 @@ def login():
 
 @app.route("/home")
 def index():
-    cursor.execute("SELECT * FROM tasks")
+    print("SESSION:", session)
+    user_id = session.get("user_id")
+
+    if not user_id:
+        return redirect(url_for("login"))
+
+    cursor.execute(
+        "SELECT * FROM tasks WHERE user_id = %s",
+        (user_id,)
+    )
 
     tasks = cursor.fetchall()
     total_tasks = len(tasks)
@@ -86,14 +101,22 @@ def add():
     if not title:
         return redirect(url_for("index"))
 
+    user_id = session.get("user_id")
+
+    if not user_id:
+        return redirect(url_for("login"))
+
     created_at = datetime.now()
 
     cursor.execute(
-        "INSERT INTO tasks (title, description, created_at) VALUES (%s, %s, %s)",
-        (title, description, created_at)
+        """
+        INSERT INTO tasks (title, description, created_at, user_id)
+        VALUES (%s, %s, %s, %s)
+        """,
+        (title, description, created_at, user_id)
     )
-    conn.commit()
 
+    conn.commit()
     return redirect(url_for("index"))
 
 @app.route("/about")
@@ -103,52 +126,135 @@ def about():
 
 @app.route("/all")
 def all_tasks():
-    cursor.execute("SELECT * FROM tasks")
-    return render_template("index.html", tasks=cursor.fetchall())
+    user_id = session.get("user_id")
+
+    if not user_id:
+        return redirect(url_for("login"))
+
+    cursor.execute(
+        "SELECT * FROM tasks WHERE user_id = %s",
+        (user_id,)
+    )
+
+    tasks = cursor.fetchall()
+
+    return render_template("index.html", tasks=tasks)
 
 @app.route("/today")
 def today_tasks():
-    cursor.execute("SELECT * FROM tasks WHERE DATE(created_at) = CURDATE()")
-    return render_template("index.html", tasks=cursor.fetchall())
+    user_id = session.get("user_id")
+
+    if not user_id:
+        return redirect(url_for("login"))
+
+    cursor.execute(
+        """
+        SELECT * FROM tasks
+        WHERE user_id = %s
+        AND DATE(created_at) = CURDATE()
+        """,
+        (user_id,)
+    )
+
+    tasks = cursor.fetchall()
+
+    return render_template("index.html", tasks=tasks)
 
 @app.route("/recent")
 def recent_tasks():
-    cursor.execute("SELECT * FROM tasks ORDER BY created_at DESC LIMIT 5")
-    return render_template("index.html", tasks=cursor.fetchall())
+    user_id = session.get("user_id")
+
+    if not user_id:
+        return redirect(url_for("login"))
+
+    cursor.execute(
+        """
+        SELECT * FROM tasks
+        WHERE user_id = %s
+        ORDER BY created_at DESC
+        LIMIT 5
+        """,
+        (user_id,)
+    )
+
+    tasks = cursor.fetchall()
+
+    return render_template("index.html", tasks=tasks)
 
 @app.route("/delete/<int:id>")
 def delete(id):
-    cursor.execute("DELETE FROM tasks WHERE id=%s", (id,))
+    user_id = session.get("user_id")
+
+    if not user_id:
+        return redirect(url_for("login"))
+
+    cursor.execute(
+        "DELETE FROM tasks WHERE id=%s AND user_id=%s",
+        (id, user_id)
+    )
+
     conn.commit()
+
     return redirect(url_for("index"))
 
 @app.route("/edit/<int:id>")
 def edit(id):
-    cursor.execute("SELECT * FROM tasks WHERE id=%s", (id,))
+    user_id = session.get("user_id")
+
+    if not user_id:
+        return redirect(url_for("login"))
+
+    cursor.execute(
+        "SELECT * FROM tasks WHERE id=%s AND user_id=%s",
+        (id, user_id)
+    )
+
     task = cursor.fetchone()
+
+    if not task:
+        return redirect(url_for("index"))
+
     return render_template("edit.html", task=task)
 
 @app.route("/update/<int:id>", methods=["POST"])
 def update(id):
+    user_id = session.get("user_id")
+
+    if not user_id:
+        return redirect(url_for("login"))
+
     title = request.form.get("title")
     description = request.form.get("description")
 
     cursor.execute(
-        "UPDATE tasks SET title=%s, description=%s WHERE id=%s",
-        (title, description, id)
+        """
+        UPDATE tasks
+        SET title=%s, description=%s
+        WHERE id=%s AND user_id=%s
+        """,
+        (title, description, id, user_id)
     )
+
     conn.commit()
 
     return redirect(url_for("index"))
 
 @app.route("/toggle/<int:id>")
 def toggle(id):
-    print("TOGGLE HIT:", id)   # 👈 DEBUG
+    user_id = session.get("user_id")
+
+    if not user_id:
+        return redirect(url_for("login"))
 
     cursor.execute(
-        "UPDATE tasks SET completed = NOT completed WHERE id=%s",
-        (id,)
+        """
+        UPDATE tasks
+        SET completed = NOT completed
+        WHERE id=%s AND user_id=%s
+        """,
+        (id, user_id)
     )
+
     conn.commit()
 
     return redirect(url_for("index"))
@@ -156,11 +262,24 @@ def toggle(id):
 #search route
 @app.route("/search")
 def search():
+    user_id = session.get("user_id")
+
+    if not user_id:
+        return redirect(url_for("login"))
+
     query = request.args.get("query", "")
+
     cursor.execute(
-        "SELECT * FROM tasks WHERE title LIKE %s OR description LIKE %s",
-        (f"%{query}%", f"%{query}%")
+        """
+        SELECT * FROM tasks
+        WHERE user_id = %s
+        AND (title LIKE %s OR description LIKE %s)
+        """,
+        (user_id, f"%{query}%", f"%{query}%")
     )
-    return render_template("index.html", tasks=cursor.fetchall())
+
+    tasks = cursor.fetchall()
+
+    return render_template("index.html", tasks=tasks)
 if __name__ == "__main__":
     app.run (debug=True, port=9000)
