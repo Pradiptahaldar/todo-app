@@ -136,5 +136,5 @@ http://127.0.0.1:5000/
 This project is built for learning and practice purposes, and can be extended into a full production-ready app.
 
 ---
-
+### right now the user document validation is not implemented in this version , i am trying to add thoose validation within 1 week (in learning phase)
 ⭐ If you like this project, consider giving it a star!
