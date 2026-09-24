@@ -1,15 +1,21 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 import mysql.connector
 from datetime import datetime
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = "your_secret_key"
+app.secret_key = os.getenv("SECRET_KEY")
 # connect to mysql
 conn = mysql.connector.connect(
-    host="localhost",
-    user="root",
-    password="",
-    database="pradipta"
+    host=os.getenv("DB_HOST"),
+    port=int(os.getenv("DB_PORT", 3306)),
+    user=os.getenv("DB_USER"),
+    password=os.getenv("DB_PASSWORD"),
+    database=os.getenv("DB_NAME"),
+    ssl_disabled=False
 )
 cursor = conn.cursor(dictionary=True)
 
